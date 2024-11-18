@@ -17,6 +17,7 @@ import reactor.core.publisher.Mono;
 
 import java.io.*;
 import java.net.URL;
+import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.util.UUID;
 
@@ -34,18 +35,18 @@ public class AProductService {
     @Value("${nginx.server.url}")
     private String nginxServerUrl;
 
-    public void apiInsert() throws IOException {
+    public void apiInsert(String tmp) throws IOException {
         try {
 
             String[] searchTerms = {"홈런볼", "포카칩"};
 
             // 배열을 반복하면서 처리
-            for (String originalString : searchTerms) {
-                String encodedString = URLEncoder.encode(originalString, "UTF-8");
+                String encodedString = URLEncoder.encode(tmp, "UTF-8");
+                String prdkind = URLEncoder.encode("과자", "UTF-8");
 
                 String apiurl = String.format(
                         "http://apis.data.go.kr/B553748/CertImgListServiceV3/getCertImgListServiceV3?ServiceKey=Dxhv%%2FFADXXMPmKxLHMxOkoyMrWL45dwTybbI8frUxCT1eyJKz0WstFSGR5f0XppdMp51F%%2FkluvX3%%2Bm4oTgJHJQ%%3D%%3D&prdlstNm=%s&returnType=json&pageNo=1&numOfRows=100",
-                        encodedString
+                        encodedString,prdkind
                 );
 
                 URL url = new URL(apiurl);
@@ -131,7 +132,7 @@ public class AProductService {
                 } else {
                     log.error("Invalid response format. Expected JSON, but received: " + result.toString());
                 }
-            }
+
             } catch(Exception e){
                 e.printStackTrace();
             }
@@ -153,4 +154,3 @@ public class AProductService {
             log.error("파일 업로드 실패: " + e.getMessage());
         }
     }
-}
