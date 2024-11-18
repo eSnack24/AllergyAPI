@@ -1,8 +1,6 @@
 package org.zerock.allergyapi.api.domain;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
 
 @Table(name = "tbl_product")
@@ -16,6 +14,7 @@ import lombok.*;
 public class ProductEntity {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long pno;
 
     private int price;

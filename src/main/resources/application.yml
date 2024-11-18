@@ -44,6 +44,3 @@ logging:
   level:
     org.springframework.security.web: TRACE
 
-nginx:
-  server:
-    url: http://10.10.10.128/api/upload/product
