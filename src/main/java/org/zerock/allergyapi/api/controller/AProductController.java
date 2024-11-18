@@ -21,13 +21,19 @@ public class AProductController {
 
     private final AllergyService allergyService;
 
+    private String[] companyArr = {"해태", "오리온", "농심", "롯데제과주식회사", "크라운", "빙그레"};
+
     @GetMapping("/save")
     public void save() throws IOException {
 
-//        productService.apiInsert();
+        for(String company : companyArr) {
+            productService.apiInsert(company);
+        }
 
-        allergyService.insertService("오리온");
 
+        for(String company : companyArr) {
+            allergyService.insertService(company);
+        }
     }
 
 }
