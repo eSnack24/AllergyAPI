@@ -21,7 +21,7 @@ public class AProductController {
 
     private final AllergyService allergyService;
 
-    private String[] companyArr = {"해태", "오리온", "농심", "롯데제과주식회사", "크라운", "빙그레"};
+    private final String[] companyArr = {"해태", "오리온", "농심", "롯데제과주식회사", "크라운", "빙그레", "삼양식품"};
 
     @GetMapping("/save")
     public void save() throws IOException {
@@ -29,7 +29,10 @@ public class AProductController {
         for(String company : companyArr) {
             productService.apiInsert(company);
         }
+    }
 
+    @GetMapping("/allergysave")
+    public void saveAllergy() throws IOException {
 
         for(String company : companyArr) {
             allergyService.insertService(company);

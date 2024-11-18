@@ -55,7 +55,7 @@ public class AllergyService {
         String encodedString = URLEncoder.encode(tmp, "UTF-8");
 
         String apiurl = String.format(
-                "https://apis.data.go.kr/B553748/CertImgListServiceV3/getCertImgListServiceV3?ServiceKey=Dxhv%%2FFADXXMPmKxLHMxOkoyMrWL45dwTybbI8frUxCT1eyJKz0WstFSGR5f0XppdMp51F%%2FkluvX3%%2Bm4oTgJHJQ%%3D%%3D&prdlstNm=%s&returnType=json&pageNo=1&numOfRows=100",
+                "https://apis.data.go.kr/B553748/CertImgListServiceV3/getCertImgListServiceV3?ServiceKey=Dxhv%%2FFADXXMPmKxLHMxOkoyMrWL45dwTybbI8frUxCT1eyJKz0WstFSGR5f0XppdMp51F%%2FkluvX3%%2Bm4oTgJHJQ%%3D%%3D&manufacture=%s&returnType=json&pageNo=1&numOfRows=100",
                 encodedString
         );
 
