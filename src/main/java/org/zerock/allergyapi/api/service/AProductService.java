@@ -7,7 +7,8 @@ import org.json.JSONObject;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.zerock.allergyapi.api.domain.AProductEntity;
-import org.zerock.allergyapi.api.repository.AProductRepository;
+import org.zerock.allergyapi.api.domain.ProductEntity;
+import org.zerock.allergyapi.api.repository.ProductRepository;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -22,7 +23,7 @@ import java.net.URLEncoder;
 @RequiredArgsConstructor
 public class AProductService {
 
-    private final AProductRepository productRepository;
+    private final ProductRepository productRepository;
 
     public void apiInsert() throws IOException {
         try {
@@ -65,7 +66,7 @@ public class AProductService {
                     JSONObject itemWrapper = items.getJSONObject(i);
                     JSONObject item = itemWrapper.getJSONObject("item");
 
-                    AProductEntity product = new AProductEntity();
+                    ProductEntity product = new ProductEntity();
                     product.setPno((long) (i + 1)); // 예시: 인덱스를 기본 키로 설정
                     product.setPtitle_ko(item.optString("prdlstNm", "No Title")); // 제품명
                     product.setPcontent_ko(item.optString("description", "No Description"));
