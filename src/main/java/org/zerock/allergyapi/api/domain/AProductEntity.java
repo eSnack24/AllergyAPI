@@ -1,17 +1,22 @@
 package org.zerock.allergyapi.api.domain;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name ="tbl_product_allergy")
 public class AProductEntity {
 
     @Id
-    private Long apno;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long pano;
 
     private Long ano;
 
