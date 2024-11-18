@@ -4,15 +4,19 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.zerock.allergyapi.api.domain.AProductEntity;
+import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.zerock.allergyapi.api.domain.ProductEntity;
 import org.zerock.allergyapi.api.repository.ProductRepository;
+import reactor.core.publisher.Mono;
 
 import java.io.*;
 import java.net.URL;
-import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.util.UUID;
 
@@ -24,6 +28,11 @@ import java.util.UUID;
 public class AProductService {
 
     private final ProductRepository productRepository;
+
+    private final WebClient webClient;
+
+    @Value("${nginx.server.url}")
+    private String nginxServerUrl;
 
     public void apiInsert() throws IOException {
         try {
@@ -85,37 +94,22 @@ public class AProductService {
                         String uniqueFileName = UUID.randomUUID().toString() + fileExtension;
 
                         try {
+                            // 이미지 다운로드 (로컬 저장 없이 바로 WebClient로 업로드)
+                            InputStream in = new URL("https" + imageUrl.substring(4)).openStream();
 
+                            // MultipartFile로 변환
+                            MockMultipartFile multipartFile = new MockMultipartFile(
+                                    "file", uniqueFileName, "image/jpeg", in
+                            );
 
-
-
-                            // 다운로드할 URL
-                            log.info("------------------------------------------------------5");
-
-                            InputStream in = new URL("https"+imageUrl.substring(4)).openStream();
-                            OutputStream outputStream = new FileOutputStream("C:\\snack\\demo\\" + uniqueFileName); // 이미지 파일 저장
-
-                            // 파일 다운로드 및 저장
-                            byte[] buffer = new byte[1024 * 8];
-
-                            while (true) {
-                                int count = in.read(buffer);
-
-                                log.info("COUNT:  "  + count);
-
-                                if (count == -1){
-                                    break;
-                                }
-                                outputStream.write(buffer, 0, count);
-                            }
+                            // WebClient로 Nginx 서버에 업로드
+                            uploadFileToNginx(multipartFile);
 
                             // 스트림 종료
                             in.close();
-                            outputStream.close();
 
-                            log.info("-----------------------------------i value: " + i );
+                            log.info("파일이 성공적으로 업로드되었습니다: " + uniqueFileName);
 
-                            log.info("파일이 성공적으로 저장되었습니다: " + uniqueFileName);
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
@@ -142,4 +136,21 @@ public class AProductService {
                 e.printStackTrace();
             }
         }
+
+    private void uploadFileToNginx(MockMultipartFile file) {
+        try {
+            // WebClient로 파일 업로드
+            webClient.post()
+                    .header(HttpHeaders.CONTENT_TYPE, MediaType.MULTIPART_FORM_DATA_VALUE)
+                    .bodyValue(file)
+                    .retrieve()
+                    .bodyToMono(String.class)
+                    .doOnTerminate(() -> log.info("파일 업로드 완료"))
+                    .subscribe(); // 비동기 처리
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.error("파일 업로드 실패: " + e.getMessage());
+        }
     }
+}

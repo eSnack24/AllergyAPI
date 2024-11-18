@@ -45,6 +45,11 @@ dependencies {
 
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 
+    implementation 'org.springframework:spring-webflux:6.2.0'
+    implementation 'org.springframework:spring-mock:2.0.8'
+    compileOnly 'org.springframework:spring-mock:2.0.8'
+    runtimeOnly 'org.springframework:spring-mock:2.0.8'
+
 
 
 

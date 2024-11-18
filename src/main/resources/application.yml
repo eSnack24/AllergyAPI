@@ -44,8 +44,6 @@ logging:
   level:
     org.springframework.security.web: TRACE
 
-PAYPAL:
-  CLIENT:
-    ID: ARXsGAth3VQXmiZa7fzIK0DwKdZyAzwGCRD_fpxBdWRpvo2QezzYbWqHpckTcGn8XpjHUPNVuIu7GLTh
-    SECRET: EKsv5jHmf8NRSF3rDRS41PCc8m_c3UJcXDT4pZ3o1FPK1Tlujy7kdd1tuaiWiiHvesVmmIVAPaRMyt0o
-
+nginx:
+  server:
+    url: http://10.10.10.128/api/upload/product
