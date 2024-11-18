@@ -7,21 +7,15 @@ import lombok.Data;
 
 @Entity
 @Data
-@Table(name ="tbl_product")
+@Table(name ="tbl_product_allergy")
 public class AProductEntity {
 
     @Id
+    private Long apno;
+
+    private Long ano;
+
     private Long pno;
-
-    private int price;
-
-    private String Pfilename;
-
-    private String ptitle_ko;
-
-    private String pcontent_ko;
-
-    private String allergy;
 
 
 }

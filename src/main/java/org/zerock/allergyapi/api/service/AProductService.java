@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.zerock.allergyapi.api.domain.AProductEntity;
 import org.zerock.allergyapi.api.repository.AProductRepository;
+import org.zerock.allergyapi.api.repository.AllergyRepository;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -23,6 +24,8 @@ import java.net.URLEncoder;
 public class AProductService {
 
     private final AProductRepository productRepository;
+
+    private final AllergyRepository allergyRepository;
 
     public void apiInsert() throws IOException {
         try {
@@ -67,11 +70,6 @@ public class AProductService {
 
                     AProductEntity product = new AProductEntity();
                     product.setPno((long) (i + 1)); // 예시: 인덱스를 기본 키로 설정
-                    product.setPtitle_ko(item.optString("prdlstNm", "No Title")); // 제품명
-                    product.setPcontent_ko(item.optString("description", "No Description"));
-                    product.setPfilename(item.optString("img", null));
-                    product.setPrice(item.optInt("price", 0)); // 가격 필드 예시
-                    product.setAllergy(item.optString("allergy", "No Allergy"));
 
                     productRepository.save(product);
                 }
