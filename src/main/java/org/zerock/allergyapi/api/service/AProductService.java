@@ -72,7 +72,6 @@ public class AProductService {
                     product.setPcontent_ko(item.optString("description", "No Description"));
                     product.setPfilename(item.optString("img", null));
                     product.setPrice(item.optInt("price", 0)); // 가격 필드 예시
-                    product.setAllergy(item.optString("allergy", "No Allergy"));
 
                     productRepository.save(product);
                 }
