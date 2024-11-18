@@ -10,11 +10,11 @@ import org.zerock.allergyapi.api.domain.AProductEntity;
 import org.zerock.allergyapi.api.domain.ProductEntity;
 import org.zerock.allergyapi.api.repository.ProductRepository;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.URL;
+import java.net.URLConnection;
 import java.net.URLEncoder;
+import java.util.UUID;
 
 
 @Service
@@ -28,58 +28,118 @@ public class AProductService {
     public void apiInsert() throws IOException {
         try {
 
-            String originalString = "홈런볼";
+            String[] searchTerms = {"홈런볼", "포카칩"};
 
-            String encodedString = URLEncoder.encode(originalString, "UTF-8");
+            // 배열을 반복하면서 처리
+            for (String originalString : searchTerms) {
+                String encodedString = URLEncoder.encode(originalString, "UTF-8");
 
-            String apiurl = String.format(
-                    "https://apis.data.go.kr/B553748/CertImgListServiceV3/getCertImgListServiceV3?ServiceKey=Dxhv%%2FFADXXMPmKxLHMxOkoyMrWL45dwTybbI8frUxCT1eyJKz0WstFSGR5f0XppdMp51F%%2FkluvX3%%2Bm4oTgJHJQ%%3D%%3D&prdlstNm=%s&returnType=json&pageNo=1&numOfRows=100",
-                    encodedString
-            );
+                String apiurl = String.format(
+                        "http://apis.data.go.kr/B553748/CertImgListServiceV3/getCertImgListServiceV3?ServiceKey=Dxhv%%2FFADXXMPmKxLHMxOkoyMrWL45dwTybbI8frUxCT1eyJKz0WstFSGR5f0XppdMp51F%%2FkluvX3%%2Bm4oTgJHJQ%%3D%%3D&prdlstNm=%s&returnType=json&pageNo=1&numOfRows=100",
+                        encodedString
+                );
 
-            URL url = new URL(apiurl);
-            BufferedReader br = new BufferedReader(new InputStreamReader(url.openStream(), "UTF-8"));
+                URL url = new URL(apiurl);
+                BufferedReader br = new BufferedReader(new InputStreamReader(url.openStream(), "UTF-8"));
 
-            StringBuilder result = new StringBuilder();
-            String line;
-            while ((line = br.readLine()) != null) {
-                result.append(line);
-            }
-
-            log.info("------------------------------------------------------1");
-
-            log.info(result.toString());
-
-            // 응답이 올바른 JSON 형식인지 확인
-            if (result.toString().startsWith("{")) {
-                // JSON 파싱
-                JSONObject jsonObject = new JSONObject(result.toString());
-                JSONObject body = jsonObject.getJSONObject("body");
-                JSONArray items = body.getJSONArray("items");
-
-                log.info("------------------------------------------------------2");
-                log.info(items.toString());
-
-                // 데이터를 Entity로 변환하여 저장
-                for (int i = 0; i < items.length(); i++) {
-
-                    JSONObject itemWrapper = items.getJSONObject(i);
-                    JSONObject item = itemWrapper.getJSONObject("item");
-
-                    ProductEntity product = new ProductEntity();
-                    product.setPno((long) (i + 1)); // 예시: 인덱스를 기본 키로 설정
-                    product.setPtitle_ko(item.optString("prdlstNm", "No Title")); // 제품명
-                    product.setPcontent_ko(item.optString("description", "No Description"));
-                    product.setPfilename(item.optString("img", null));
-                    product.setPrice(item.optInt("price", 0)); // 가격 필드 예시
-
-                    productRepository.save(product);
+                StringBuilder result = new StringBuilder();
+                String line;
+                while ((line = br.readLine()) != null) {
+                    result.append(line);
                 }
-            } else {
-                log.error("Invalid response format. Expected JSON, but received: " + result.toString());
+
+                log.info("------------------------------------------------------1");
+
+                log.info(result.toString());
+
+                // 응답이 올바른 JSON 형식인지 확인
+                if (result.toString().startsWith("{")) {
+                    // JSON 파싱
+                    JSONObject jsonObject = new JSONObject(result.toString());
+                    JSONObject body = jsonObject.getJSONObject("body");
+                    JSONArray items = body.getJSONArray("items");
+
+                    log.info("------------------------------------------------------2");
+                    log.info(items.toString());
+
+                    // 데이터를 Entity로 변환하여 저장
+                    for (int i = 0; i < items.length(); i++) {
+
+                        JSONObject itemWrapper = items.getJSONObject(i);
+                        JSONObject item = itemWrapper.getJSONObject("item");
+
+                        log.info(item.optString("prdlstNm", "no title"));
+                        String imageUrl = item.optString("imgurl1", null);
+                        log.info(imageUrl);
+
+                        // 파일명 추출 및 확장자 가져오기
+                        int lastSlashIndex = imageUrl.lastIndexOf('/');
+                        String originalFileName = imageUrl.substring(lastSlashIndex + 1);
+                        log.info("------------------------------------------------------3");
+                        log.info(originalFileName);
+                        int dotIndex = originalFileName.lastIndexOf('.');
+                        String fileExtension = dotIndex != -1 ? originalFileName.substring(dotIndex) : ""; // 확장자
+                        log.info("------------------------------------------------------4");
+
+                        // UUID로 새 파일명 생성
+                        String uniqueFileName = UUID.randomUUID().toString() + fileExtension;
+
+                        try {
+
+
+
+
+                            // 다운로드할 URL
+                            log.info("------------------------------------------------------5");
+
+                            InputStream in = new URL("https"+imageUrl.substring(4)).openStream();
+                            OutputStream outputStream = new FileOutputStream("C:\\snack\\demo\\" + uniqueFileName); // 이미지 파일 저장
+
+                            // 파일 다운로드 및 저장
+                            byte[] buffer = new byte[1024 * 8];
+
+                            while (true) {
+                                int count = in.read(buffer);
+
+                                log.info("COUNT:  "  + count);
+
+                                if (count == -1){
+                                    break;
+                                }
+                                outputStream.write(buffer, 0, count);
+                            }
+
+                            // 스트림 종료
+                            in.close();
+                            outputStream.close();
+
+                            log.info("-----------------------------------i value: " + i );
+
+                            log.info("파일이 성공적으로 저장되었습니다: " + uniqueFileName);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+
+                        ProductEntity product = new ProductEntity();
+                        product.setPno((long) (i + 1)); // 예시: 인덱스를 기본 키로 설정
+//                        log.info(item.optString("prdlstNm", "no title"));
+                        product.setPtitle_ko(item.optString("prdlstNm", "no title"));
+//                        log.info(item.optString("nutrient", "no nutrient"));
+//                        product.setPcontent_ko(item.optString("nutrient", "no nutrient"));
+                        product.setPfilename(uniqueFileName);
+                        product.setPrice(4000); // 가격 필드 예시
+
+                        productRepository.save(product);
+                    }
+
+
+                } else {
+                    log.error("Invalid response format. Expected JSON, but received: " + result.toString());
+                }
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+            } catch(Exception e){
+                e.printStackTrace();
+            }
         }
     }
-}

@@ -2,10 +2,17 @@ package org.zerock.allergyapi.api.domain;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import lombok.Data;
+import jakarta.persistence.Table;
+import lombok.*;
 
+@Table(name = "tbl_product")
 @Entity
-@Data
+@Getter
+@Setter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+@ToString
 public class ProductEntity {
 
     @Id
