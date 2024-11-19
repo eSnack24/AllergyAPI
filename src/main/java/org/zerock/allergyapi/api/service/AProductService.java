@@ -1,7 +1,9 @@
 package org.zerock.allergyapi.api.service;
 
+import lombok.Cleanup;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import net.coobird.thumbnailator.Thumbnailator;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.stereotype.Service;
@@ -73,32 +75,25 @@ public class AProductService {
                     // 파일명 추출 및 확장자 가져오기
                     int lastSlashIndex = imageUrl.lastIndexOf('/');
                     String originalFileName = imageUrl.substring(lastSlashIndex + 1);
-                    log.info("------------------------------------------------------3");
                     log.info(originalFileName);
                     int dotIndex = originalFileName.lastIndexOf('.');
                     String fileExtension = dotIndex != -1 ? originalFileName.substring(dotIndex) : ""; // 확장자
-                    log.info("------------------------------------------------------4");
 
                     // UUID로 새 파일명 생성
                     String uniqueFileName = UUID.randomUUID().toString() + fileExtension;
 
                     try {
+                        InputStream in = new URL("https" + imageUrl.substring(4)).openStream();
+                        String savePath = "C:\\snack\\demo\\"; // 이미지 파일 저장 경로
+                        String thumbnailPrefix = "s_"; // 썸네일 파일명 접두사
 
-                        // 다운로드할 URL
-                        log.info("------------------------------------------------------5");
-
-                        InputStream in = new URL("https"+imageUrl.substring(4)).openStream();
-                        OutputStream outputStream = new FileOutputStream("C:\\snack\\demo\\" + uniqueFileName); // 이미지 파일 저장
-
-                        // 파일 다운로드 및 저장
+                        // 원본 이미지 저장
+                        OutputStream outputStream = new FileOutputStream(savePath + uniqueFileName);
                         byte[] buffer = new byte[1024 * 8];
 
                         while (true) {
                             int count = in.read(buffer);
-
-                            log.info("COUNT:  "  + count);
-
-                            if (count == -1){
+                            if (count == -1) {
                                 break;
                             }
                             outputStream.write(buffer, 0, count);
@@ -108,12 +103,24 @@ public class AProductService {
                         in.close();
                         outputStream.close();
 
-                        log.info("-----------------------------------i value: " + i );
-
                         log.info("파일이 성공적으로 저장되었습니다: " + uniqueFileName);
+
+                        // 썸네일 생성
+                        File originalFile = new File(savePath + uniqueFileName);
+                        File thumbnailFile = new File(savePath + thumbnailPrefix + uniqueFileName);
+
+                        try (InputStream thumbnailInputStream = new FileInputStream(originalFile);
+                             OutputStream thumbnailOutputStream = new FileOutputStream(thumbnailFile)) {
+
+                            Thumbnailator.createThumbnail(thumbnailInputStream, thumbnailOutputStream, 200, 200);
+                            log.info("썸네일이 성공적으로 생성되었습니다: " + thumbnailPrefix + uniqueFileName);
+                        }
+
                     } catch (IOException e) {
                         e.printStackTrace();
+                        log.error("파일 저장 또는 썸네일 생성 중 오류 발생", e);
                     }
+
 
 
                     ProductEntity product = new ProductEntity();
